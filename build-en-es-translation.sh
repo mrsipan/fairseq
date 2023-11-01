@@ -12,14 +12,15 @@ git clone https://github.com/NVIDIA/apex ../apex
 cd ../apex
 git checkout 22.04-dev
 
-pip wheel -v -w /tmp \
-  --disable-pip-version-check \
-  --no-cache-dir \
-  --global-option="--cpp_ext" \
-  --global-option="--cuda_ext" \
-  .
-
-pip install /tmp/apex*.whl
+if ! pip install /tmp/apex*.whl; then
+  pip wheel -v -w /tmp \
+    --disable-pip-version-check \
+    --no-cache-dir \
+    --global-option="--cpp_ext" \
+    --global-option="--cuda_ext" \
+    .
+  pip install /tmp/apex*.whl
+fi
 
 cd $original_dir
 cd examples/translation/
