@@ -3,12 +3,17 @@
 set -vex
 
 original_dir=$(pwd)
+
+pip install fastBPE sacremoses subword_nmt
 pip install -e .
 
-git clone https://github.com/mrsipan/apex ../apex
+rm -rf ../apex
+git clone https://github.com/NVIDIA/apex ../apex
 cd ../apex
+git checkout 22.04-dev
 
-pip wheel -v -w /tmp --disable-pip-version-check \
+pip wheel -v -w /tmp \
+  --disable-pip-version-check \
   --no-cache-dir \
   --global-option="--cpp_ext" \
   --global-option="--cuda_ext" \
@@ -49,3 +54,4 @@ fairseq-train \
 fairseq-generate data-bin/wmt14.en-es \
     --path checkpoints-en-es/checkpoint_best.pt \
     --batch-size 128 --beam 5 --remove-bpe
+
