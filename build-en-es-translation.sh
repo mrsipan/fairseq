@@ -3,18 +3,23 @@
 set -vex
 
 original_dir=$(pwd)
+
+pip install fastBPE sacremoses subword_nmt
 pip install -e .
 
-git clone https://github.com/mrsipan/apex ../apex
+rm -rf ../apex
+git clone https://github.com/NVIDIA/apex ../apex
 cd ../apex
+git checkout 22.04-dev
 
-pip wheel -v -w /tmp --disable-pip-version-check \
+pip wheel -v -w /tmp \
+  --disable-pip-version-check \
   --no-cache-dir \
   --global-option="--cpp_ext" \
   --global-option="--cuda_ext" \
   .
 
-pip install /tmp/*.whl
+pip install /tmp/apex*.whl
 
 cd $original_dir
 cd examples/translation/
@@ -25,13 +30,13 @@ TEXT=examples/translation/wmt17_en_es
 
 fairseq-preprocess --source-lang en --target-lang es \
   --trainpref $TEXT/train --validpref $TEXT/valid --testpref $TEXT/test \
-  --destdir data-bin/wmt14.en-es \
+  --destdir data-bin/wmt17.en-es \
   --workers 20
 
 CUDA_VISIBLE_DEVICES=1
 
 fairseq-train \
-    data-bin/wmt14.en-es \
+    data-bin/wmt17.en-es \
     --arch transformer --share-decoder-input-output-embed \
     --optimizer adam --adam-betas '(0.9, 0.98)' --clip-norm 0.0 \
     --lr 5e-4 --lr-scheduler inverse_sqrt --warmup-updates 4000 \
@@ -49,3 +54,4 @@ fairseq-train \
 fairseq-generate data-bin/wmt14.en-es \
     --path checkpoints-en-es/checkpoint_best.pt \
     --batch-size 128 --beam 5 --remove-bpe
+
