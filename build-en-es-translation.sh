@@ -2,7 +2,7 @@
 
 set -vex
 
-original_dir=$(pwd)
+original_dir=`pwd`
 
 pip install fastBPE sacremoses subword_nmt
 pip install -e .
